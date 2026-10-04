@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>한끼노트 - 사진 한 장으로 한 끼를 가볍게</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #F6F4EE;
+      color: #2D3A34;
+    }
+    .serif-title {
+      font-family: 'Nanum Myeongjo', serif;
+    }
+    .drag-active {
+      border-color: #4A6B5D !important;
+      background-color: #EBF1ED !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center px-4 py-6 sm:py-10">
+
+  <!-- 메인 레이아웃 래퍼 -->
+  <div class="w-full max-w-[420px] flex flex-col space-y-6">
+
+    <!-- 상단 네비게이션 헤더 -->
+    <header class="flex justify-between items-center px-1">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-[#3D5A4C] flex items-center justify-center text-white shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c7.2 0 9 1.8 9 9s-1.8 9-9 9-9-1.8-9-9 1.8-9 9-9z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5L19.5 4.5"></path>
+          </svg>
+        </div>
+        <span class="font-bold text-lg tracking-tight text-[#22332B]">한끼노트</span>
+      </div>
+      
+      <!-- 우측 인디케이터 (API Key 설정) -->
+      <button id="openKeyModalBtn" class="flex items-center gap-1.5 text-xs text-[#7B8B82] hover:text-[#3D5A4C] transition" title="API 설정">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#E07A5F]"></span>
+        <span>가볍게 살펴보는 한 끼</span>
+      </button>
+    </header>
+
+    <!-- 히어로 타이틀 섹션 -->
+    <section class="text-center pt-2 pb-1 space-y-2">
+      <p class="text-xs font-semibold text-[#D06B4D] tracking-wide">오늘의 식탁을 들여다봐요</p>
+      <h2 class="serif-title text-[28px] sm:text-[30px] leading-[1.3] text-[#24382F] font-bold">
+        사진 한 장으로<br>한 끼를 가볍게
+      </h2>
+      <p class="text-xs text-[#6B7D74] leading-relaxed max-w-[280px] mx-auto pt-1">
+        사진을 올리면 바로 메뉴와 양을 살펴보고<br>칼로리를 즉시 알려드릴게요.
+      </p>
+    </section>
+
+    <!-- 카드 1: [식사 사진] (01 / 사진 선택) -->
+    <section class="bg-white rounded-3xl p-5 shadow-sm border border-[#E9E6DC] space-y-4">
+      <div class="flex justify-between items-center text-xs">
+        <span class="font-bold text-[#23352C] text-sm">식사 사진</span>
+        <span class="text-[#8E9E95] font-medium tracking-wider">01 / 사진 선택</span>
+      </div>
+
+      <!-- 드롭존 & 인풋 박스 -->
+      <div id="dropZone" class="relative rounded-2xl bg-[#EFF2EB] border-2 border-dashed border-[#D2DCD4] p-6 text-center transition cursor-pointer hover:border-[#8FA89B] flex flex-col items-center justify-center min-h-[220px]">
+        
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+
+        <!-- 초기 안내 뷰 -->
+        <div id="uploadPrompt" class="space-y-3 flex flex-col items-center">
+          <div class="w-12 h-12 rounded-2xl bg-[#E0E8E1] flex items-center justify-center text-[#527262] shadow-inner">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 0l-2-2m2 2l2-2"></path>
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold text-[#2A3E34]">무엇을 드셨나요?</h4>
+            <p class="text-[11px] text-[#71847A] mt-1 leading-snug">
+              사진을 올리면 <strong>자동으로 즉시 분석</strong>돼요.<br>밝고 위에서 찍은 사진이면 더 좋아요.
+            </p>
+          </div>
+
+          <!-- 버튼 그룹 -->
+          <div class="flex items-center gap-2 pt-1" onclick="event.stopPropagation()">
+            <button type="button" id="browseBtn" class="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-[#30463A] text-xs font-semibold rounded-xl shadow-xs border border-[#CCD8D0] flex items-center gap-1.5 transition">
+              <svg class="w-3.5 h-3.5 text-[#5C796B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              사진 고르기
+            </button>
+            <button type="button" id="cameraBtn" class="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-[#30463A] text-xs font-semibold rounded-xl shadow-xs border border-[#CCD8D0] flex items-center gap-1.5 transition">
+              <svg class="w-3.5 h-3.5 text-[#5C796B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              촬영하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 이미지 프리뷰 화면 -->
+        <div id="previewContainer" class="hidden w-full flex flex-col items-center space-y-2">
+          <div class="relative w-full max-h-56 rounded-xl overflow-hidden bg-black/5 flex items-center justify-center">
+            <img id="imagePreview" src="" alt="선택한 음식" class="max-h-56 w-auto object-contain rounded-xl">
+          </div>
+          <button type="button" id="reselectBtn" class="text-[11px] text-[#A84A35] font-semibold px-2 py-1 hover:underline" onclick="event.stopPropagation()">
+            다른 사진으로 다시 선택
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 안내 문구 -->
+      <div class="flex items-start gap-1.5 text-[11px] text-[#7B8B82] leading-tight px-1">
+        <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[#8B9C92]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+        <span>사진은 분석에만 사용되며 저장되지 않아요. JPG, PNG, WEBP 파일을 지원해요.</span>
+      </div>
+
+      <!-- 상태 인디케이터 바 -->
+      <div id="actionStatusBtn" class="w-full py-3.5 bg-[#8EAEA0] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none">
+        <span id="actionBtnText">사진을 올리면 바로 분석돼요</span>
+      </div>
+    </section>
+
+    <!-- 카드 2: [한 끼 살펴보기] (02 / 예상 영양 정보) -->
+    <section class="bg-white rounded-3xl p-5 shadow-sm border border-[#E9E6DC] space-y-4">
+      <div class="flex justify-between items-center text-xs">
+        <span class="font-bold text-[#23352C] text-sm">한 끼 살펴보기</span>
+        <span class="text-[#8E9E95] font-medium tracking-wider">02 / 예상 영양 정보</span>
+      </div>
+
+      <!-- 1) 대기 상태 화면 -->
+      <div id="emptyResultView" class="py-10 flex flex-col items-center justify-center text-center space-y-3">
+        <div class="w-14 h-14 rounded-2xl bg-[#EFF2EB] flex items-center justify-center text-[#7F9489]">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"></path>
+            <path d="M15 11v11"></path>
+            <path d="M6 2v10a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2"></path>
+            <path d="M9 15v7"></path>
+          </svg>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#2D3E35]">사진을 기다리고 있어요</h4>
+          <p class="text-[11px] text-[#788B81] mt-1 leading-relaxed">
+            사진을 올리면 별도 버튼 없이 어떤 음식이 담겼는지와<br>한 끼 예상 열량을 바로 보여드릴게요.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2) 로딩 상태 화면 -->
+      <div id="loadingResultView" class="hidden py-12 flex flex-col items-center justify-center text-center space-y-3">
+        <div class="w-9 h-9 border-3 border-[#D2DCD4] border-t-[#6E8E80] rounded-full animate-spin"></div>
+        <p class="text-xs font-semibold text-[#486355]" id="loadingStatusText">최적의 모델로 영양 정보를 분석하고 있습니다...</p>
+      </div>
+
+      <!-- 3) 비음식 안내 화면 -->
+      <div id="nonFoodResultView" class="hidden py-8 px-4 rounded-2xl bg-[#FAF6EE] border border-[#ECDDC4] text-center space-y-2">
+        <div class="w-9 h-9 mx-auto rounded-full bg-[#F3E5D0] flex items-center justify-center text-[#B07335]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h5 class="text-xs font-bold text-[#86511E]">식별된 음식 요소가 없습니다</h5>
+        <p class="text-[11px] text-[#9E6D3E] leading-relaxed">
+          업로드된 사진에서 음식을 확인하지 못했습니다.<br>선명한 음식 사진으로 다시 올려주세요.
+        </p>
+      </div>
+
+      <!-- 4) 분석 완료 결과 화면 -->
+      <div id="completedResultView" class="hidden space-y-5 pt-1">
+        <div class="flex justify-between items-start border-b border-[#F0ECE1] pb-3">
+          <div>
+            <span class="text-[10px] font-bold text-[#567A6B] bg-[#E7EFEA] px-2 py-0.5 rounded-full">분석 완료</span>
+            <h3 id="resFoodName" class="text-xl font-bold text-[#23352C] mt-1">-</h3>
+            <p id="resPortion" class="text-[11px] text-[#7A8E83] mt-0.5">1회 제공량</p>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-extrabold text-[#D06B4D] tracking-tight" id="resCalories">0</div>
+            <span class="text-[11px] text-[#8C9E94] font-medium">kcal</span>
+          </div>
+        </div>
+
+        <!-- 3대 영양소 그래프 -->
+        <div class="space-y-3">
+          <p class="text-[11px] font-bold text-[#536B5F] tracking-wide">주요 영양 성분 비율</p>
+          
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] font-semibold">
+              <span class="text-[#96633E]">탄수화물</span>
+              <span class="text-[#4E6257]" id="resCarbs">0g</span>
+            </div>
+            <div class="w-full bg-[#EFF2EB] rounded-full h-2 overflow-hidden">
+              <div id="resCarbsBar" class="bg-[#D9824C] h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] font-semibold">
+              <span class="text-[#3B6652]">단백질</span>
+              <span class="text-[#4E6257]" id="resProtein">0g</span>
+            </div>
+            <div class="w-full bg-[#EFF2EB] rounded-full h-2 overflow-hidden">
+              <div id="resProteinBar" class="bg-[#568A73] h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] font-semibold">
+              <span class="text-[#87556A]">지방</span>
+              <span class="text-[#4E6257]" id="resFat">0g</span>
+            </div>
+            <div class="w-full bg-[#EFF2EB] rounded-full h-2 overflow-hidden">
+              <div id="resFatBar" class="bg-[#A46E82] h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 보조 수치 (당류 / 나트륨) -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-[#F6F7F3] p-2.5 rounded-xl text-center border border-[#E9ECE4]">
+            <span class="text-[10px] text-[#7F9288] font-medium block">당류</span>
+            <span id="resSugar" class="text-xs font-bold text-[#34493E] mt-0.5 block">0g</span>
+          </div>
+          <div class="bg-[#F6F7F3] p-2.5 rounded-xl text-center border border-[#E9ECE4]">
+            <span class="text-[10px] text-[#7F9288] font-medium block">나트륨</span>
+            <span id="resSodium" class="text-xs font-bold text-[#34493E] mt-0.5 block">0mg</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 푸터 면책조항 -->
+    <footer class="text-center px-4 pt-1 pb-6">
+      <p class="text-[10px] text-[#9AA7A0] leading-relaxed">
+        참고용 추정치입니다. 분석 결과는 실제 영양 성분과 다를 수 있으며, 의료적 판단이나 치료를 위한 정보가 아닙니다.
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- API Key 설정 모달 -->
+  <div id="keyModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-xl border border-[#E6E2D8]">
+      <div class="flex justify-between items-center">
+        <h4 class="text-sm font-bold text-[#2A3F34]">Gemini API Key 설정</h4>
+        <button id="closeKeyModalBtn" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="text-[11px] text-[#708479]">Google AI Studio의 Gemini API Key를 입력하세요.</p>
+      <input type="password" id="keyInput" class="w-full px-3 py-2 border border-[#CBD7CF] rounded-xl text-xs font-mono focus:outline-none focus:border-[#577A6C]" placeholder="AQ...">
+      <div class="flex justify-end gap-1.5 pt-1">
+        <button id="saveKeyBtn" class="px-4 py-2 bg-[#527768] hover:bg-[#436457] text-white text-xs font-bold rounded-xl transition">
+          저장하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 주입된 사용자 기본 Gemini Key
+    const DEFAULT_KEY = "AQ.Ab8RN6JuqO1GfHvwlrA-GlB2PKNsnso7tU3dM3bN_y6wFS4idw";
+    let activeApiKey = localStorage.getItem('gemini_custom_key') || DEFAULT_KEY;
+
+    let selectedBase64Raw = null;
+    let selectedMimeType = 'image/jpeg';
+    let isAnalyzing = false;
+
+    // DOM 캐싱
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const cameraInput = document.getElementById('cameraInput');
+    const browseBtn = document.getElementById('browseBtn');
+    const cameraBtn = document.getElementById('cameraBtn');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const reselectBtn = document.getElementById('reselectBtn');
+    const actionStatusBtn = document.getElementById('actionStatusBtn');
+    const actionBtnText = document.getElementById('actionBtnText');
+
+    const emptyResultView = document.getElementById('emptyResultView');
+    const loadingResultView = document.getElementById('loadingResultView');
+    const nonFoodResultView = document.getElementById('nonFoodResultView');
+    const completedResultView = document.getElementById('completedResultView');
+
+    const openKeyModalBtn = document.getElementById('openKeyModalBtn');
+    const closeKeyModalBtn = document.getElementById('closeKeyModalBtn');
+    const keyModal = document.getElementById('keyModal');
+    const keyInput = document.getElementById('keyInput');
+    const saveKeyBtn = document.getElementById('saveKeyBtn');
+
+    keyInput.value = activeApiKey;
+
+    openKeyModalBtn.addEventListener('click', () => keyModal.classList.remove('hidden'));
+    closeKeyModalBtn.addEventListener('click', () => keyModal.classList.add('hidden'));
+    saveKeyBtn.addEventListener('click', () => {
+      const v = keyInput.value.trim();
+      if (v) {
+        activeApiKey = v;
+        localStorage.setItem('gemini_custom_key', v);
+      }
+      keyModal.classList.add('hidden');
+    });
+
+    // 드래그 앤 드롭
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-active');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) processFileAndAutoAnalyze(files[0]);
+    });
+
+    // 파일 & 카메라 선택
+    dropZone.addEventListener('click', () => {
+      if (!selectedBase64Raw) fileInput.click();
+    });
+    browseBtn.addEventListener('click', () => fileInput.click());
+    cameraBtn.addEventListener('click', () => cameraInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) processFileAndAutoAnalyze(e.target.files[0]);
+    });
+    cameraInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) processFileAndAutoAnalyze(e.target.files[0]);
+    });
+
+    reselectBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetUpload();
+    });
+
+    function resetUpload() {
+      selectedBase64Raw = null;
+      isAnalyzing = false;
+      imagePreview.src = '';
+      previewContainer.classList.add('hidden');
+      uploadPrompt.classList.remove('hidden');
+      fileInput.value = '';
+      cameraInput.value = '';
+      actionBtnText.textContent = '사진을 올리면 바로 분석돼요';
+      actionStatusBtn.className = 'w-full py-3.5 bg-[#8EAEA0] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none';
+      showResultView('empty');
+    }
+
+    // 사진 등록 즉시 캔버스 리사이징 후 자동 분석 실행 (Zero-Click)
+    function processFileAndAutoAnalyze(file) {
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일(JPG, PNG, WEBP 등)을 선택해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1280;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          selectedMimeType = 'image/jpeg';
+          selectedBase64Raw = dataUrl.split(',')[1];
+
+          imagePreview.src = dataUrl;
+          uploadPrompt.classList.add('hidden');
+          previewContainer.classList.remove('hidden');
+
+          triggerAutoAnalysis();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showResultView(state) {
+      emptyResultView.classList.add('hidden');
+      loadingResultView.classList.add('hidden');
+      nonFoodResultView.classList.add('hidden');
+      completedResultView.classList.add('hidden');
+
+      if (state === 'empty') emptyResultView.classList.remove('hidden');
+      else if (state === 'loading') loadingResultView.classList.remove('hidden');
+      else if (state === 'non_food') nonFoodResultView.classList.remove('hidden');
+      else if (state === 'completed') completedResultView.classList.remove('hidden');
+    }
+
+    async function triggerAutoAnalysis() {
+      if (!selectedBase64Raw || isAnalyzing) return;
+
+      isAnalyzing = true;
+      showResultView('loading');
+      
+      actionBtnText.textContent = '칼로리를 분석하고 있어요...';
+      actionStatusBtn.className = 'w-full py-3.5 bg-[#6E8E80] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none animate-pulse';
+
+      try {
+        const result = await requestGeminiAutoDiscovery(selectedBase64Raw, selectedMimeType);
+        
+        if (!result.is_food) {
+          showResultView('non_food');
+          actionBtnText.textContent = '음식이 식별되지 않았어요';
+          actionStatusBtn.className = 'w-full py-3.5 bg-[#B88764] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none';
+        } else {
+          renderResult(result);
+          showResultView('completed');
+          actionBtnText.textContent = '분석이 완료되었어요';
+          actionStatusBtn.className = 'w-full py-3.5 bg-[#4F7262] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none';
+        }
+      } catch (err) {
+        showResultView('empty');
+        actionBtnText.textContent = '사진을 다시 올려주세요';
+        actionStatusBtn.className = 'w-full py-3.5 bg-[#8EAEA0] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2 select-none';
+      } finally {
+        isAnalyzing = false;
+      }
+    }
+
+    // [핵심] 사용자가 모델을 고를 필요 없이, 구글 API에서 살아있는 모델을 알아서 찾아 순차 호출
+    async function requestGeminiAutoDiscovery(base64Data, mimeType) {
+      // 1. 실시간 가용 모델 동적 탐색
+      let modelQueue = [];
+
+      try {
+        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(activeApiKey)}`, {
+          headers: { 'x-goog-api-key': activeApiKey }
+        });
+
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          if (listJson.models && listJson.models.length > 0) {
+            // generateContent를 지원하는 모델 필터링
+            const valid = listJson.models.filter(m => 
+              m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent')
+            ).map(m => m.name.replace(/^models\//, ''));
+
+            // 속도가 빠르고 503 과부하가 없는 flash-lite 및 flash 계열을 최우선 정렬
+            const lites = valid.filter(n => n.includes('flash-lite') || n.includes('8b'));
+            const flashes = valid.filter(n => n.includes('flash') && !n.includes('flash-lite') && !n.includes('8b'));
+            const others = valid.filter(n => !n.includes('flash'));
+
+            modelQueue = [...lites, ...flashes, ...others];
+          }
+        }
+      } catch (e) {
+        console.warn('동적 모델 목록 획득 실패, 기본 비전 큐를 사용합니다.', e);
+      }
+
+      // 탐색 실패 시 사용할 안전한 기본 큐
+      if (modelQueue.length === 0) {
+        modelQueue = [
+          'gemini-2.0-flash-lite',
+          'gemini-2.5-flash-lite',
+          'gemini-1.5-flash-8b',
+          'gemini-2.0-flash',
+          'gemini-3.8-flash'
+        ];
+      }
+
+      const prompt = "음식 사진을 분석하여 메뉴명, 1회 제공량 기준 총 칼로리 및 주요 영양 성분을 정밀 추출하십시오. 조언이나 피드백 텍스트는 작성하지 말고 지정된 JSON 스키마로만 답하십시오.";
+
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: base64Data
+                }
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              is_food: { type: "BOOLEAN" },
+              food_name: { type: "STRING" },
+              portion: { type: "STRING" },
+              calories: { type: "INTEGER" },
+              carbs_g: { type: "NUMBER" },
+              protein_g: { type: "NUMBER" },
+              fat_g: { type: "NUMBER" },
+              sugar_g: { type: "NUMBER" },
+              sodium_mg: { type: "NUMBER" }
+            },
+            required: ["is_food", "food_name", "portion", "calories", "carbs_g", "protein_g", "fat_g", "sugar_g", "sodium_mg"]
+          }
+        }
+      };
+
+      // 2. 503이나 404가 발생해도 alert 없이 다음 가용 모델로 즉시 무중단 전환 (Silent Failover)
+      let lastError = null;
+      for (const model of modelQueue) {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(activeApiKey)}`;
+        
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "x-goog-api-key": activeApiKey
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            const resData = await res.json();
+            return JSON.parse(resData.candidates[0].content.parts[0].text);
+          }
+
+          // 503(과부하) 또는 404(미지원) 발생 시 조용히 넘김 (팝업 차단)
+          console.warn(`[Auto-Failover] ${model} 응답코드: ${res.status}. 다음 모델로 자동 전환합니다.`);
+          lastError = new Error(`HTTP ${res.status}`);
+          continue;
+
+        } catch (e) {
+          console.warn(`[Auto-Failover] ${model} 네트워크 오류. 다음 모델로 전환합니다.`, e);
+          lastError = e;
+        }
+      }
+
+      throw lastError || new Error('모든 가용 모델 응답에 실패했습니다.');
+    }
+
+    // 결과 렌더링
+    function renderResult(data) {
+      document.getElementById('resFoodName').textContent = data.food_name || '식별된 메뉴';
+      document.getElementById('resPortion').textContent = data.portion ? `제공량: ${data.portion}` : '1회 제공량 기준';
+      document.getElementById('resCalories').textContent = (data.calories || 0).toLocaleString();
+
+      const carbs = Math.round(data.carbs_g || 0);
+      const protein = Math.round(data.protein_g || 0);
+      const fat = Math.round(data.fat_g || 0);
+
+      document.getElementById('resCarbs').textContent = `${carbs}g`;
+      document.getElementById('resProtein').textContent = `${protein}g`;
+      document.getElementById('resFat').textContent = `${fat}g`;
+      document.getElementById('resSugar').textContent = `${Math.round(data.sugar_g || 0)}g`;
+      document.getElementById('resSodium').textContent = `${Math.round(data.sodium_mg || 0)}mg`;
+
+      const sum = (carbs + protein + fat) || 1;
+      document.getElementById('resCarbsBar').style.width = `${Math.min(100, Math.round((carbs / sum) * 100))}%`;
+      document.getElementById('resProteinBar').style.width = `${Math.min(100, Math.round((protein / sum) * 100))}%`;
+      document.getElementById('resFatBar').style.width = `${Math.min(100, Math.round((fat / sum) * 100))}%`;
+    }
+  </script>
+</body>
+</html>
